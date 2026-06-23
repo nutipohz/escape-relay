@@ -1,6 +1,16 @@
 const WebSocket = require("ws");
-const wss = new WebSocket.Server({ port: process.env.PORT || 8080 });
-const rooms = {};
+const http      = require("http");
+const rooms     = {};
+
+// HTTP-сервер для UptimeRobot (пингует каждые 5 мин → Replit не засыпает)
+const httpServer = http.createServer((req, res) => {
+  res.writeHead(200, { "Content-Type": "text/plain" });
+  res.end("OK");
+});
+const PORT = process.env.PORT || 8080;
+httpServer.listen(PORT);
+
+const wss = new WebSocket.Server({ server: httpServer });
 
 function genCode() {
   let code, tries = 0;
@@ -80,4 +90,4 @@ wss.on("connection", (ws) => {
   });
 });
 
-console.log("Relay server started on port", process.env.PORT || 8080);
+console.log("Relay server started on port", PORT);
